@@ -35,7 +35,7 @@ class Forward (object):
             primed = 1/4.0*old_primed + 3/4.0*old_not_primed
             not_primed = 1/4.0*old_not_primed + 3/4.0*old_primed
 
-            assert abs((primed + not_primed) - 1.0) < 10 ** -20
+            assert abs((primed + not_primed) - 1.0) < 10 ** -10
 
             #primed = p(xi | zi = primed)
             primed = self.table_dices[i][1][dice_results[i]]

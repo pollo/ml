@@ -3,6 +3,8 @@ from forward import Forward
 
 import random
 
+EPS = 10 ** -25
+
 class Viterbi(object):
     def __init__(self, K, table_dices, player_dice):
         """Initialize the viterbi algorithm. K is the number of tables,
@@ -43,7 +45,7 @@ class Viterbi(object):
                 max_found = viterbi_var
                 max_result = result
 
-        if max_found < 10 ** -20:
+        if max_found < EPS:
             print 'The observations given cannot be produced with given dices'
             return []
 
@@ -105,7 +107,7 @@ class Viterbi(object):
 
                 print "viterbi var returned "+str(viterbi_var)
 
-                if (viterbi_var < 10 ** -20):
+                if (viterbi_var < EPS):
                     #this previous result is impossible, try the others
                     continue
 
@@ -191,11 +193,11 @@ class Viterbi(object):
         #probability of emitting result if the table is not primed
         emission_not_primed = self.table_dices[table-1][0][result]
 
-        if primed + not_primed < 10 ** -20:
+        if primed + not_primed < EPS:
             #Table k dice cannot be equal result
             return 0.0
 
-        assert abs((primed + not_primed) - 1.0) < 10 ** -20
+        assert abs((primed + not_primed) - 1.0) < 10 ** -10
         return not_primed * emission_not_primed + primed * emission_primed
 
     def probability_state(self, table, state, dice_results):
@@ -220,11 +222,11 @@ class Viterbi(object):
                                                   (state+1)%2,
                                                   dice_results)
 
-        if previous_state + previous_not_state < 10 ** -20:
+        if previous_state + previous_not_state < EPS:
             #the dice_results sequence is not possible
             return 0.0
 
-        assert abs((previous_state+previous_not_state) - 1.0) < 10 ** -20
+        assert abs((previous_state+previous_not_state) - 1.0) < 10 ** -10
 
         return 1/4.0 * previous_state + 3/4.0 * previous_not_state
 
@@ -236,6 +238,12 @@ def main():
     dice3 = Dice([0,0,1.0,0,0,0])
     dice6 = Dice([0,0,0,0.1,0,0.9])
     unfair_dice = Dice([1/10.0,1/10.0,1/10.0,1/10.0,1/10.0,1/2.0])
+    increasing = [1,2,4,8,16,32]
+    increasing = [float(e)/sum(increasing) for e in increasing]
+    decreasing = increasing[:]
+    decreasing.reverse()
+    inc_dice = Dice(increasing)
+    dec_dice = Dice(decreasing)
 
     K = 5
     table_dices = [(dice3, dice6) for i in range(K)]
@@ -251,6 +259,19 @@ def main():
     viterbi_alg = Viterbi(K, table_dices, player_dice)
     print viterbi_alg.run([11, 6, 6, 9, 4, 8, 2, 9, 4, 6])
     #print viterbi_alg.run([11, 6, 6, 9, 4, 8, 2])###, 9, 4, 8, 2, 9, 4, 6])
+
+    K = 10
+    table_dices = [(inc_dice,dec_dice) for i in range(K)]
+    player_dice = fair_dice
+    viterbi_alg = Viterbi(K, table_dices, player_dice)
+    print viterbi_alg.run([7, 6, 7, 12, 8, 7, 11, 6, 10, 4])
+    #print viterbi_alg.run([12, 8])
+
+    K = 20
+    table_dices = [(inc_dice,dec_dice) for i in range(K)]
+    player_dice = inc_dice
+    viterbi_alg = Viterbi(K, table_dices, player_dice)
+    print viterbi_alg.run([8, 7, 8, 7, 10, 12, 7, 11, 5, 12, 7, 9, 9, 12, 8, 12, 7, 10, 5, 11])
 
 if __name__ == '__main__':
     main()

@@ -60,6 +60,12 @@ def main():
     dice3 = Dice([0,0,1.0,0,0,0])
     dice6 = Dice([0,0,0,0,0,1.0])
     unfair_dice = Dice([1/10.0,1/10.0,1/10.0,1/10.0,1/10.0,1/2.0])
+    increasing = [1,2,4,8,16,32]
+    increasing = [float(e)/sum(increasing) for e in increasing]
+    decreasing = increasing[:]
+    decreasing.reverse()
+    inc_dice = Dice(increasing)
+    dec_dice = Dice(decreasing)
 
     N = 3
     K = 10
@@ -77,6 +83,18 @@ def main():
     K = 10
     table_dices = [(dice3, dice6) for i in range(K)]
     player_dices = [dice1 for i in range(N)]
+    simulate(K, N, table_dices, player_dices)
+
+    N = 3
+    K = 10
+    table_dices = [(inc_dice,dec_dice) for i in range(K)]
+    player_dices = [fair_dice for i in range(N)]
+    simulate(K, N, table_dices, player_dices)
+
+    N = 3
+    K = 20
+    table_dices = [(inc_dice,dec_dice) for i in range(K)]
+    player_dices = [inc_dice for i in range(N)]
     simulate(K, N, table_dices, player_dices)
 
 if __name__ == '__main__':

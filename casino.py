@@ -18,6 +18,8 @@ class Casino(object):
         primed = True if random.random() > 0.5 else False
 
         observations = []
+        table_results = []
+        player_results = []
         for table in range(self.K):
             #roll dices and observe sum
             player_result = player_dice.roll()
@@ -25,12 +27,14 @@ class Casino(object):
                 table_result = self.table_dices[table][1].roll()
             else:
                 table_result = self.table_dices[table][0].roll()
+            table_results.append(table_result)
+            player_results.append(player_result)
             observations.append(player_result+table_result)
 
             #update primed state, changes with probability 3/4
             primed = primed if random.random()<1/4.0 else not primed
 
-        return observations
+        return observations, player_results, table_results
 
 def simulate(K, N, table_dices, player_dices):
     print "Simulation K="+str(K)+", N="+str(N)
@@ -43,8 +47,10 @@ def simulate(K, N, table_dices, player_dices):
     for i,dice in enumerate(player_dices):
         print "Player "+str(i+1)+" -> "+str(dice)
 
-        observations = c.simulate_player(dice)
+        observations,player_results,table_results = c.simulate_player(dice)
         print observations
+        print player_results
+        print table_results
     print
 
 def main():

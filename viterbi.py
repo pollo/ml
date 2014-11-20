@@ -43,6 +43,10 @@ class Viterbi(object):
                 max_found = viterbi_var
                 max_result = result
 
+        if max_found < 10 ** -20:
+            print 'The observations given cannot be produced with given dices'
+            return []
+
         return self.reconstruct_path(self.K, max_result)
 
     def viterbi_variable(self, table, result, observations):
@@ -62,6 +66,10 @@ class Viterbi(object):
         assert result>=1 and result<=6
         assert len(observations)==table
 
+        print "viterbi variable:"
+        print "table {} result {} observations {}".format(
+            table,result,observations)
+
         #sum observed at table k
         observed = observations[table-1]
 
@@ -69,10 +77,14 @@ class Viterbi(object):
         if (table == 1):
             #probability of table 1 giving result
             result_probability = self.transition_probability(1, result, [])
+            print "result_probability "+str(result_probability)
+
             #probability of observing the sum given the result
             emission_probability = self.emission_probability(1,
                                                              result,
                                                              observed)
+            print "emission_probability "+str(emission_probability)
+
             return result_probability * emission_probability
 
         if ((table,result) not in self.memoization):
@@ -85,25 +97,42 @@ class Viterbi(object):
             max_prob = 0
             max_previous_result = 0
             for previous_result in range(lower_bound,upper_bound+1):
+                print "previous result "+str(previous_result)
+
                 viterbi_var = self.viterbi_variable(table-1,
                                                     previous_result,
                                                     observations[:-1])
 
+                print "viterbi var returned "+str(viterbi_var)
+
+                if (viterbi_var < 10 ** -20):
+                    #this previous result is impossible, try the others
+                    continue
+
                 previous_results = self.reconstruct_path(table-1,
                                                          previous_result)
+
+                print "selected path "+str(previous_results)
 
                 #probability of table k giving result
                 result_probability = self.transition_probability(
                     table,
                     result,
                     previous_results)
+                print "result_probability "+str(result_probability)
 
                 #probability of observing the sum given the result
                 emission_probability = self.emission_probability(table,
                                                                  result,
                                                                  observed)
+                print "emission_probability "+str(emission_probability)
 
                 prob = viterbi_var * result_probability * emission_probability
+
+                print "prob of previous result {} at table {} is {}".format(
+                    previous_result, table, prob)
+                print
+
                 if prob > max_prob:
                     max_prob = prob
                     max_previous_result = previous_result
@@ -162,13 +191,11 @@ class Viterbi(object):
         #probability of emitting result if the table is not primed
         emission_not_primed = self.table_dices[table-1][0][result]
 
-        if primed + not_primed < 10 ** -10:
+        if primed + not_primed < 10 ** -20:
             #Table k dice cannot be equal result
             return 0.0
 
-        print primed, not_primed
-
-        assert abs((primed + not_primed) - 1.0) < 10 ** -10
+        assert abs((primed + not_primed) - 1.0) < 10 ** -20
         return not_primed * emission_not_primed + primed * emission_primed
 
     def probability_state(self, table, state, dice_results):
@@ -181,12 +208,23 @@ class Viterbi(object):
         assert state==0 or state==1
         assert len(dice_results) == table-1
 
+        print "probability table {} of being in state {} given {}".format(
+            table,state,dice_results)
         #probability of previous table being equal state h
         previous_state = self.forward_alg.run(table-1,
                                               state,
                                               dice_results)
+
         #probability of previous table being not equal state h
-        previous_not_state = 1.0 - previous_state
+        previous_not_state = self.forward_alg.run(table-1,
+                                                  (state+1)%2,
+                                                  dice_results)
+
+        if previous_state + previous_not_state < 10 ** -20:
+            #the dice_results sequence is not possible
+            return 0.0
+
+        assert abs((previous_state+previous_not_state) - 1.0) < 10 ** -20
 
         return 1/4.0 * previous_state + 3/4.0 * previous_not_state
 
@@ -201,10 +239,18 @@ def main():
 
     K = 5
     table_dices = [(dice3, dice6) for i in range(K)]
-    player_dice = dice1
+    player_dice = Dice([1/2.0,1/2.0,0,0,0,0])
     viterbi_alg = Viterbi(K, table_dices, player_dice)
 
-    print viterbi_alg.run([7,7,4,4,5])
+    print viterbi_alg.run([7,5,4,4,5])
+
+    K = 10
+    table_dices = [(fair_dice, fair_dice) for i in range(K)]
+    player_dice = fair_dice
+
+    viterbi_alg = Viterbi(K, table_dices, player_dice)
+    print viterbi_alg.run([11, 6, 6, 9, 4, 8, 2, 9, 4, 6])
+    #print viterbi_alg.run([11, 6, 6, 9, 4, 8, 2])###, 9, 4, 8, 2, 9, 4, 6])
 
 if __name__ == '__main__':
     main()

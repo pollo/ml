@@ -4,7 +4,7 @@ import random
 class Forward (object):
     def __init__(self, K, table_dices, player_dice):
         """Initialize the forward algorithm. K is the number of tables,
-        table_dices is a list of length K composed by coupe (d,d'):
+        table_dices is a list of length K composed by couple (d,d'):
         d is the dice of the table not primed, d' is the dice of the primed
         table, player_dice is the dice used by the player"""
 
@@ -19,8 +19,8 @@ class Forward (object):
         p(Zk = h | x1:xk)
         """
 
-        assert table>0 and table<=self.K
-        #state can be 0 if table is not primed, 1 if table is primed
+        assert table>=0 and table<=self.K  #tables 0 returns 1/2 primed, 1/2 not
+        #state is 0 if table is not primed, 1 if table is primed
         assert state==0 or state==1
         assert len(dice_results)==table
 
@@ -43,8 +43,9 @@ class Forward (object):
             not_primed = self.table_dices[i][0][dice_results[i]]
 
             if primed + not_primed < 10 ** -10:
-                raise ValueError('The dice results given in input couldn''t be '
-                                 'obtained by the dices given for the tables')
+                #The dice results given in input couldn't be obtained
+                #by the dices given for the tables
+                return 0.0
 
             #normalize
             primed = primed / (primed + not_primed)
@@ -71,6 +72,7 @@ def main():
     forward_alg = Forward(K, table_dices, player_dice)
 
     print forward_alg.run(5, 1, [6,6,3,4,6])
+    print forward_alg.run(0, 1, [])
 
 if __name__ == '__main__':
     main()

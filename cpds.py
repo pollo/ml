@@ -2,15 +2,15 @@
 #Y -> looks for new example
 #Z -> having an original solution
 
-X1 = 0.80
+X1 = 0.15
 X0 = 1 - X1
-Y1 = 0.70
+Y1 = 0.10
 Y0 = 1 - Y1
 
-Z00 = 0.05
-Z01 = 0.10
-Z10 = 0.20
-Z11 = 0.99
+Z00 = 0.10
+Z01 = 0.25
+Z10 = 0.25
+Z11 = 0.90
 
 def Z1():
     return \

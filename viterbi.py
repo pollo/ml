@@ -68,10 +68,6 @@ class Viterbi(object):
         assert result>=1 and result<=6
         assert len(observations)==table
 
-        print "viterbi variable:"
-        print "table {} result {} observations {}".format(
-            table,result,observations)
-
         #sum observed at table k
         observed = observations[table-1]
 
@@ -79,13 +75,11 @@ class Viterbi(object):
         if (table == 1):
             #probability of table 1 giving result
             result_probability = self.transition_probability(1, result, [])
-            print "result_probability "+str(result_probability)
 
             #probability of observing the sum given the result
             emission_probability = self.emission_probability(1,
                                                              result,
                                                              observed)
-            print "emission_probability "+str(emission_probability)
 
             return result_probability * emission_probability
 
@@ -99,13 +93,9 @@ class Viterbi(object):
             max_prob = 0
             max_previous_result = 0
             for previous_result in range(lower_bound,upper_bound+1):
-                print "previous result "+str(previous_result)
-
                 viterbi_var = self.viterbi_variable(table-1,
                                                     previous_result,
                                                     observations[:-1])
-
-                print "viterbi var returned "+str(viterbi_var)
 
                 if (viterbi_var < EPS):
                     #this previous result is impossible, try the others
@@ -114,26 +104,18 @@ class Viterbi(object):
                 previous_results = self.reconstruct_path(table-1,
                                                          previous_result)
 
-                print "selected path "+str(previous_results)
-
                 #probability of table k giving result
                 result_probability = self.transition_probability(
                     table,
                     result,
                     previous_results)
-                print "result_probability "+str(result_probability)
 
                 #probability of observing the sum given the result
                 emission_probability = self.emission_probability(table,
                                                                  result,
                                                                  observed)
-                print "emission_probability "+str(emission_probability)
 
                 prob = viterbi_var * result_probability * emission_probability
-
-                print "prob of previous result {} at table {} is {}".format(
-                    previous_result, table, prob)
-                print
 
                 if prob > max_prob:
                     max_prob = prob
@@ -210,8 +192,6 @@ class Viterbi(object):
         assert state==0 or state==1
         assert len(dice_results) == table-1
 
-        print "probability table {} of being in state {} given {}".format(
-            table,state,dice_results)
         #probability of previous table being equal state h
         previous_state = self.forward_alg.run(table-1,
                                               state,
@@ -237,7 +217,6 @@ def main():
     dice1 = Dice([1.0,0,0,0,0,0])
     dice3 = Dice([0,0,1.0,0,0,0])
     dice6 = Dice([0,0,0,0.1,0,0.9])
-    unfair_dice = Dice([1/10.0,1/10.0,1/10.0,1/10.0,1/10.0,1/2.0])
     increasing = [1,2,4,8,16,32]
     increasing = [float(e)/sum(increasing) for e in increasing]
     decreasing = increasing[:]
@@ -249,29 +228,45 @@ def main():
     table_dices = [(dice3, dice6) for i in range(K)]
     player_dice = Dice([1/2.0,1/2.0,0,0,0,0])
     viterbi_alg = Viterbi(K, table_dices, player_dice)
-
-    print viterbi_alg.run([7,5,4,4,5])
+    observations = [7,5,4,4,5]
+    print "Dice=3 not primed, dice=6 primed"
+    print "Player dice=1 or 2"
+    print "Viterbi for observed "+str(observations)
+    print viterbi_alg.run(observations)
+    print
 
     K = 10
     table_dices = [(fair_dice, fair_dice) for i in range(K)]
     player_dice = fair_dice
-
     viterbi_alg = Viterbi(K, table_dices, player_dice)
-    print viterbi_alg.run([11, 6, 6, 9, 4, 8, 2, 9, 4, 6])
-    #print viterbi_alg.run([11, 6, 6, 9, 4, 8, 2])###, 9, 4, 8, 2, 9, 4, 6])
+    observations = [11, 6, 6, 9, 4, 8, 2, 9, 4, 6]
+    print "All dices are fair"
+    print "Viterbi for observed "+str(observations)
+    print viterbi_alg.run(observations)
+    print
 
     K = 10
     table_dices = [(inc_dice,dec_dice) for i in range(K)]
     player_dice = fair_dice
     viterbi_alg = Viterbi(K, table_dices, player_dice)
-    print viterbi_alg.run([7, 6, 7, 12, 8, 7, 11, 6, 10, 4])
-    #print viterbi_alg.run([12, 8])
+    observations = [7, 6, 7, 12, 8, 7, 11, 6, 10, 4]
+    print "Dice is biased towards higher in not primed, towards lower in primed"
+    print "Player dice is fair"
+    print "Viterbi for observed "+str(observations)
+    print viterbi_alg.run(observations)
+    print
 
-    K = 20
+    """K = 20
     table_dices = [(inc_dice,dec_dice) for i in range(K)]
     player_dice = inc_dice
     viterbi_alg = Viterbi(K, table_dices, player_dice)
-    print viterbi_alg.run([8, 7, 8, 7, 10, 12, 7, 11, 5, 12, 7, 9, 9, 12, 8, 12, 7, 10, 5, 11])
+    observations = [8, 7, 8, 7, 10, 12, 7, 11, 5, 12,
+                    7, 9, 9, 12, 8, 12, 7, 10, 5, 11]
+    print "Dice is biased towards higher in not primed, towards lower in primed"
+    print "Player dice is biased towards higher"
+    print "Viterbi for observed "+str(observations)
+    print viterbi_alg.run(observations)
+    print"""
 
 if __name__ == '__main__':
     main()

@@ -36,21 +36,17 @@ class Casino(object):
 
         return observations, player_results, table_results
 
-def simulate(K, N, table_dices, player_dices):
-    print "Simulation K="+str(K)+", N="+str(N)
-    for i,dices in enumerate(table_dices):
-        print "T"+str(i)+"  -> "+str(dices[0])
-        print "T"+str(i)+"' -> "+str(dices[1])
-    print
 
+
+def simulate(K, N, table_dices, player_dices):
     c = Casino(K, table_dices)
     for i,dice in enumerate(player_dices):
         print "Player "+str(i+1)+" -> "+str(dice)
 
         observations,player_results,table_results = c.simulate_player(dice)
-        print observations
-        print player_results
-        print table_results
+        print "S = "+str(observations)
+        print "N = "+str(player_results)
+        print "X = "+str(table_results)
     print
 
 def main():
@@ -71,28 +67,32 @@ def main():
     K = 10
     table_dices = [(fair_dice, fair_dice) for i in range(K)]
     player_dices = [fair_dice for i in range(N)]
-    simulate(K, N, table_dices, player_dices)
-
-    N = 3
-    K = 10
-    table_dices = [(fair_dice, unfair_dice) for i in range(K)]
-    player_dices = [fair_dice for i in range(N)]
+    print "Simulation K="+str(K)+", N="+str(N)
+    print "Fair dices in every table"
     simulate(K, N, table_dices, player_dices)
 
     N = 3
     K = 10
     table_dices = [(dice3, dice6) for i in range(K)]
     player_dices = [dice1 for i in range(N)]
+    print "Simulation K="+str(K)+", N="+str(N)
+    print "Dice=3 in not primed, Dice=6 in primed"
     simulate(K, N, table_dices, player_dices)
 
     N = 3
     K = 10
     table_dices = [(inc_dice,dec_dice) for i in range(K)]
     player_dices = [fair_dice for i in range(N)]
+    print "Simulation K="+str(K)+", N="+str(N)
+    print "Dice biased toward lower numbers in not primed, "+\
+        "towards higher in primed"
     simulate(K, N, table_dices, player_dices)
 
     N = 3
     K = 20
+    print "Simulation K="+str(K)+", N="+str(N)
+    print "Dice biased toward lower numbers in not primed, "+\
+        "towards higher in primed"
     table_dices = [(inc_dice,dec_dice) for i in range(K)]
     player_dices = [inc_dice for i in range(N)]
     simulate(K, N, table_dices, player_dices)

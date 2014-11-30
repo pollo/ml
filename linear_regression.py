@@ -12,6 +12,8 @@ sigma2 = 0.3
 noise = scipy.stats.multivariate_normal(0.0,sigma2)
 Y = [x*W[0]+W[1] + noise.rvs() for x in X]
 
+output_path = '/home/pollo/university/ml/report/images/'
+
 def likelihood(Y, X, W):
     tot_l = 1
     for y,x in zip(Y,X):
@@ -31,22 +33,23 @@ def posterior_W(Y, X):
     return scipy.stats.multivariate_normal(mean,covariance)
 
 def visualize_prior_W():
-    xaxis = np.linspace(-2, 2, 100)
-    yaxis = np.linspace(-2, 2, 100)
+    xaxis = np.linspace(-2, 2, 200)
+    yaxis = np.linspace(-2, 2, 200)
     z = [[prior_W.pdf([x,y]) for x in xaxis] for y in yaxis]
     z.reverse()
     im = plt.imshow(z,extent=[-2,2,-2,2])
     plt.colorbar(im, orientation='vertical')
     plt.ylabel('Intercept')
     plt.xlabel('Slope')
-    plt.show()
+    plt.savefig(output_path+'lr_prior.png')
+    plt.close()
 
 def visualize_posterior_W(Y, X):
     print "Data: "
     print X
     print Y
-    xaxis = np.linspace(-2, 2, 100)
-    yaxis = np.linspace(-2, 2, 100)
+    xaxis = np.linspace(-2, 2, 200)
+    yaxis = np.linspace(-2, 2, 200)
     #z = [[prior_W.pdf([x,y])*likelihood(Y, X, [x,y])
     #      for x in xaxis] for y in yaxis]
     posterior = posterior_W(Y,X)
@@ -58,7 +61,8 @@ def visualize_posterior_W(Y, X):
     plt.colorbar(im, orientation='vertical')
     plt.ylabel('Intercept')
     plt.xlabel('Slope')
-    plt.show()
+    plt.savefig(output_path+'lr_posterior_'+str(len(X))+'.png')
+    plt.close()
 
 def sample_posterior_W(Y, X):
     xmax = 1.5
@@ -68,7 +72,9 @@ def sample_posterior_W(Y, X):
         w = posterior.rvs()
         plt.plot([xmin,xmax],[xmin*w[0]+w[1],xmax*w[0]+w[1]])
     plt.plot(X, Y, 'ko')
-    plt.show()
+    plt.ylim(-4,6)
+    plt.savefig(output_path+'lr_sample_posterior_'+str(len(X))+'.png')
+    plt.close()
 
 def main():
     visualize_prior_W()
@@ -76,6 +82,10 @@ def main():
     sample_posterior_W([Y[175]],[X[175]])
     visualize_posterior_W([Y[75],Y[175]],[X[75],X[175]])
     sample_posterior_W([Y[75],Y[175]],[X[75],X[175]])
+    Xs = [X[25],X[75],X[125],X[175]]
+    Ys = [Y[25],Y[75],Y[125],Y[175]]
+    visualize_posterior_W(Ys,Xs)
+    sample_posterior_W(Ys,Xs)
     visualize_posterior_W(Y,X)
     sample_posterior_W(Y,X)
 
